@@ -12,15 +12,20 @@
 document.addEventListener('DOMContentLoaded', () => {
   // Fade‑in observer
   const fadeElements = document.querySelectorAll('.fade-in');
-  const fadeObserver = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        fadeObserver.unobserve(entry.target);
-      }
+  if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const fadeObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          fadeObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    fadeElements.forEach(el => {
+      el.classList.add('animate');
+      fadeObserver.observe(el);
     });
-  }, { threshold: 0.1 });
-  fadeElements.forEach(el => fadeObserver.observe(el));
+  }
 
   // Highlight nav item based on current path
   const currentPath = window.location.pathname.split('/').pop();
@@ -31,8 +36,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const linkPath = href.split('/').pop();
     if (currentPath === '' && linkPath === 'index.html') {
       link.classList.add('active');
+      link.setAttribute('aria-current', 'page');
     } else if (currentPath === linkPath) {
       link.classList.add('active');
+      link.setAttribute('aria-current', 'page');
     }
   });
 });
